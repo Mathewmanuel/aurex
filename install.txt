@@ -1,0 +1,142 @@
+Tamil Wordnet Installation for Windows:
+(installation has been tested for windows 2000)
+
+A Install MYSQL 4.0.14
+B Restore Wordnet's MySQL dump
+C Install Tamil (TAB) Font
+D Install Java
+E Install Java Servlet
+F Modify webpages
+G Run Browser
+
+
+--------------------------------------------------------------------------------
+A Install MYSQL 4.0.14
+--------------------------------------------------------------------------------
+
+a.Extract mysql-4.0.14b-win.zip. 
+b.Go to mysql extracted directory and click on setup.exe
+c.Go to mysql\bin directory and click on winmysqladmin.exe
+d.Create username (arulmozi) and password (onemoretry)
+
+--------------------------------------------------------------------------------
+B Restore Wordnet's MySQL dump
+--------------------------------------------------------------------------------
+
+1. Run "cmd" and go to the <MYSQL Installation Directory>\bin & Enter into MYSQL as a root user.
+
+<MYSQL Installation Directory>\bin>mysql -u root -p
+
+2. Create an user arulmozi with password onemoretry
+
+mysql>GRANT ALL PRIVILEGES ON *.* TO 'arulmozi'@'%' IDENTIFIED BY 'onemoretry' WITH GRANT OPTION;
+
+mysql>GRANT ALL PRIVILEGES ON *.* TO 'arulmozi'@'localhost' IDENTIFIED BY 'onemoretry' WITH GRANT OPTION;
+
+mysql>quit
+
+3. Enter into MYSQL as arulmozi
+
+<MYSQL Installation Directory>\bin>mysql -u arulmozi -p
+password:**********
+
+mysql>create database wordnet;
+
+mysql>quit
+
+4. Copy the mysql4.0\tvudump.sql (from TamilWordnet.zip unzipped file) to <MYSQL Installation Directory>\bin
+
+5. On command line run:
+<MYSQL Installation Directory>\bin>mysql -u arulmozi -p wordnet < tvudump.sql
+
+
+
+--------------------------------------------------------------------------------
+C Install Tamil (TAB) Font
+--------------------------------------------------------------------------------
+Install given tabanna.TTF or any other TAB font.
+Go to Control Panel -> Fonts
+In the Fonts window go to File -> Install New Font ...
+Browse to Tamil Wordnet Installation, you will see
+"TAB-Anna [True Type]" under List of fonts
+Click on it and click OK
+
+This will install the Font.
+--------------------------------------------------------------------------------
+D Install Java 
+--------------------------------------------------------------------------------
+1. Download Java 2 SDK, 1.3 for windows 
+   from http://java.sun.com/
+2. Double click on the downloaded package. Note the installation folder.
+   This will be the <JAVA-INSTALLATION-FOLDER> coming in the following steps.
+
+-----------------------------------------------------------------------
+E Install Java Servlet
+-----------------------------------------------------------------------
+
+Create a folder on your machine where you want to install wordnet.
+NOTE: Replace <WORDNET-INSTALLATION-FOLDER> with complete path where the WORDNET is installed.
+NOTE: Replace <JAVA-INSTALLATION-FOLDER> with complete path where the JAVA installed.
+
+1. Download jsdk2.1:
+   a. Go to http://java.sun.com/products/servlet/archive.html
+   b. Click "Download" button under Java Servlet Development Kit 2.1
+   c. Click the radio button: Accept License Agreement
+   d. Download jsdk2_1-win.zip
+
+2. Extract jsdk2_1-win.zip and put it in the <WORDNET-INSTALLATION-FOLDER>\TamilWordnet folder.
+
+3. Copy the following folders from TamilWordnet into the <WORDNET-INSTALLATION-FOLDER>\TamilWordnet\jsdk2.1\webpages\ folder.
+	download
+	images
+	java	
+	twn	
+
+4. Copy all the files from source-code folder into <WORDNET-INSTALLATION-FOLDER>\TamilWordnet\jsdk2.1\examples\WEB-INF\servlets\ folder.
+
+5. Also copy the mysql-connector.jar file into <WORDNET-INSTALLATION-FOLDER>\TamilWordnet\jsdk2.1\ folder.
+
+6. Run "cmd" and go to TamilWordnet\jsdk2.1
+
+7. Set path
+
+cmd>PATH=%PATH%;<JAVA-INSTALLATION-FOLDER>\bin;
+
+8. Set classpath
+
+cmd> set CLASSPATH=%CLASSPATH%;<WORDNET-INSTALLATION-FOLDER>\TamilWordnet\jsdk2.1\server.jar;<WORDNET-INSTALLATION-FOLDER>\TamilWordnet\jsdk2.1\servlet.jar;<WORDNET-INSTALLATION-FOLDER>\TamilWordnet\jsdk2.1\mysql-connector.jar;<WORDNET-INSTALLATION-FOLDER>\TamilWordnet\jsdk2.1\webpages\java\TKD.jar;.
+
+
+9 start server by running command:
+
+<WORDNET-INSTALLATION-FOLDER>\TamilWordnet\jsdk2.1> startserver
+
+
+--------------------------------------------------------------------------------
+F Modify webpages
+--------------------------------------------------------------------------------
+NOTE: Replace <WORDNET-INSTALLATION-FOLDER> with complete path where the WORDNET is installed.
+NOTE: Replace <JAVA-INSTALLATION-FOLDER> with complete path where the JAVA installed.
+
+* Go to directory: <WORDNET-INSTALLATION-FOLDER>\TamilWordnet\jsdk2.1\webpages\twn 
+ 
+This folder contains 3 html files
+    1. back  2. index   3. search
+  If required, modify the host address according to the ip addresses of your local machine. Replace string "localhost" with your ip address.
+
+* Go to directory: <WORDNET-INSTALLATION-FOLDER>\TamilWordnet\jsdk2.1\examples\WEB-INF\servlets\
+
+This folder has Source Java files
+1.twn.java
+2.relation.java
+
+Modify the host address according to your ip address(its 192.168.2.33 in the files ,replace it with your machine ip address) and compile these files again by typing the following command.
+Note: One can know the ip address of their machine by typing ipconfig in command prompt.
+
+javac *.java OR javac twn.java relation.java
+
+--------------------------------------------------------------------------------
+G Run Browser
+--------------------------------------------------------------------------------
+Run from browser:
+     http://localhost:8080/twn/index.html

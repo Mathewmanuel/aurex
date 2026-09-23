@@ -1,0 +1,38 @@
+Tamil WordNet version 1.0 (May 2007)
+
+Tamil Wordnet is Copyright (c) 2005
+by AU-KBC Research Centre, Chennai &
+Tamil University, Thanjavur, and
+licensed under the following terms :
+* tvudump.sql file under terms of
+  Creative Commons Attribution-ShareAlike 2.5
+  (see http://creativecommons.org/licenses/by-sa/2.5/)
+* rest of the files under
+  GNU General Public License (GPL)
+  (see http://www.fsf.org/)
+
+This Tamil Wordnet 1.0 release was 
+produced by 
+Dr S Rajendran (raj_ushush At yahoo.com)
+and
+Dr S Arulmozhi (arulmozi At gmail.com)
+
+For other contributors, please see README.txt
+
+This release was partially funded
+by Tamil Virtual University 
+(http://www.tamilvu.org/), Chennai
+
+This package is distributed in the 
+hope that it will be useful, but 
+WITHOUT ANY WARRANTY; without even 
+the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU General Public License 
+for more details.
+
+You may obtain a copy of the 
+GNU General Public License from 
+the Free Software Foundation 
+by visiting their Web site
+http://www.fsf.org/

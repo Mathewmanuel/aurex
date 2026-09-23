@@ -1,0 +1,86 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+   <title>Tamil WordNet</title>
+
+
+	<LINK REL=fontdef SRC="/TAB_InaiMathi.pfr">
+        <SCRIPT SRC="/wfplayer/tdserver.js" TYPE="text/javascript">
+        </SCRIPT>
+
+</head>
+
+<!--<body text="#000000" bgcolor="#777477" link="#0000EE" vlink="#551A8B" alink="#FF0000" style="text-align: justify;">-->
+	<body > 
+<div align=right><font size=-1><font color="#0000FF"><a href="http://www.au-kbc.org" target="_blank">Home</a></font>&nbsp;
+<font color="#0000FF"><a href="http://www.au-kbc.org/site_index.html" target="_blank">Index</a></font></font></div>
+<img SRC="../images/kbc.gif" ALT="AU-KBC Research Centre" height=26 width=367>
+<hr width="100%" size="2" align="Left">
+<table COLS=2 WIDTH="100%">
+  <tr>
+    <td align=left>
+      <!--font color="#000000"><a href=../general/browser_conf.html target=_blank >Can't see a text box below?</a></font-->
+    </td>
+    <td align=left>
+      <font color="#000000"><a href="../download/charmap.gif" target=_blank >Character Map</a></font>
+    </td>
+    <td align=right>
+      <font color="#000000"><a href="../download/" target=_blank >Font Download</a></font>
+    </td>
+  </tr>
+</table>
+
+<center><font color="#0000FF" size=+1><u>Tamil WordNet</u></font></center>
+<center><!--img SRC="images/se-logo.jpg" ALT="eagle" height=100 width=400></center-->
+
+
+<div style="text-align: center; font-weight: normal;"><form action ="http://localhost:8080/examples/servlet/twn" name="main" METHOD="POST" target ="Output" onSubmit="return setBody(this)">
+		
+<table width="100%">
+<tr>
+  <td align=center>
+<input NAME="Tamsearch" TYPE="hidden" FRAMEWIDTH=5 SIZE=50 MAXLENGTH=256 onUnfocus=xxx("Tamsearch")>
+
+	  
+    <applet code="TKD.class" archive="../java/TKD.jar" NAME="JTextArea" width=404 height=32>
+      <param name="ZX" value="3">
+      <param name="ZY" value="0">
+    </applet>
+  </td>
+  
+   
+</tr>
+<tr>
+  <td align=center>
+  <font face=TAB_InaiMathi,TAB-Anna,tabanna,TAB_InaiMathi,TAB-Anna,tabakaram,tabmaduram> 
+<input NAME="submit" TYPE="submit" VALUE="Find Senses ">
+</font>
+  </td>
+</tr>
+</table>
+</form></div>
+<!--center><font color="#0000FF" size=+1>KeyBoard Help</font></center-->
+<table width="100%">
+<tr>
+<td align=center><!--img SRC="../images/kb.jpg" height=190 width=760--></td>
+</tr>
+</table>
+<hr width="100%" size="2">
+
+<script LANGUAGE="javascript">
+function setBody(mf)
+{
+
+  var str2;
+  str2=document.JTextArea.zzzbo();
+  mf.Tamsearch.value = str2;
+  return(true);
+}
+</script>
+
+
+</body>
+</html>
+
