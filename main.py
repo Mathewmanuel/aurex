@@ -1,4 +1,3 @@
-
 import os
 from typing import List, Dict, Any, Optional
 
@@ -7,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from neo4j import GraphDatabase, Driver
 from pydantic import BaseModel
 
-from lemmatizer import get_tamil_lemma
+from lemmatizer import get_tamil_lemma, normalize_phonetic_key
 
 
 # ============================================================
@@ -472,15 +471,6 @@ def get_word_subgraph(
 
             # ------------------------------------------------
             # GRAPH QUERY
-            #
-            # We deliberately use:
-            #
-            # MATCH (start)-[rel]->(neighbor)
-            #
-            # and filter using type(rel).
-            #
-            # This is the same query structure that was already
-            # confirmed to work directly in Neo4j.
             # ------------------------------------------------
 
             if depth == 1:
@@ -1008,3 +998,217 @@ def disambiguate_sense(
             "semantic_paths": paths
         }
 
+
+# ============================================================
+# Unified Search
+#
+# WordNet and Literary Corpus remain separate in Neo4j.
+# FastAPI combines their results for the frontend.
+# ============================================================
+
+@app.get("/api/search/{query}")
+def unified_search(query: str):
+
+    # --------------------------------------------------------
+    # Normalize input
+    # --------------------------------------------------------
+
+    tamil_lemma = get_tamil_lemma(query)
+
+    if not tamil_lemma:
+        raise HTTPException(
+            status_code=400,
+            detail="Unable to normalize the supplied word."
+        )
+
+    canonical_key = normalize_phonetic_key(
+        tamil_lemma
+    )
+
+    try:
+
+        with driver.session(
+            database=NEO4J_DATABASE
+        ) as session:
+
+            # =================================================
+            # 1. WORDNET SEARCH
+            # =================================================
+
+            wordnet_result = session.run(
+                """
+                MATCH (w:Word)
+                WHERE
+                    w.name = $search_query
+                    OR w.label = $search_query
+                    OR w.normalized_label = $canonical_key
+
+                OPTIONAL MATCH (semantic:Word)-[:HASNODE]->(w)
+
+                WITH DISTINCT
+                    CASE
+                        WHEN semantic IS NOT NULL
+                        THEN semantic
+                        ELSE w
+                    END AS word
+
+                OPTIONAL MATCH (word)-[r]->(related:Word)
+
+                WHERE type(r) IN [
+                    "SYNONYMOF",
+                    "HYPERNYMOF",
+                    "HYPONYMOF",
+                    "MERONYMOF",
+                    "HOLONYMOF",
+                    "TROPONYMOF",
+                    "RELATEDFORM",
+                    "ANTONYMOF"
+                ]
+
+                RETURN
+                    word,
+                    type(r) AS relationship,
+                    related
+                """,
+                search_query=query,
+                canonical_key=canonical_key
+            )
+
+            wordnet_entries = {}
+
+            for record in wordnet_result:
+
+                word = record["word"]
+                relationship = record["relationship"]
+                related = record["related"]
+
+                if word is None:
+                    continue
+
+                word_name = word.get("name")
+
+                if not word_name:
+                    continue
+
+                if word_name not in wordnet_entries:
+
+                    wordnet_entries[word_name] = {
+                        "properties": dict(word),
+                        "relationships": {}
+                    }
+
+                if relationship and related:
+
+                    wordnet_entries[
+                        word_name
+                    ][
+                        "relationships"
+                    ].setdefault(
+                        relationship,
+                        []
+                    )
+
+                    wordnet_entries[
+                        word_name
+                    ][
+                        "relationships"
+                    ][
+                        relationship
+                    ].append(
+                        dict(related)
+                    )
+
+            # =================================================
+            # 2. LITERARY CORPUS SEARCH
+            # =================================================
+
+            corpus_result = session.run(
+                """
+                MATCH (wf:WordForm)
+
+                WHERE
+                    wf.canonical_key = $canonical_key
+                    OR wf.sample = $search_query
+
+                MATCH (wf)-[:APPEARS_IN]->(v:Verse)
+
+                RETURN
+                    wf.canonical_key AS canonical_key,
+                    wf.sample AS tamil_word,
+                    v.number AS verse_number,
+                    v.book AS book,
+                    v.section AS section,
+                    v.text AS text
+
+                ORDER BY
+                    v.book,
+                    v.number
+                """,
+                search_query=query,
+                canonical_key=canonical_key
+            )
+
+            occurrences = []
+
+            corpus_canonical_key = None
+            corpus_tamil_word = None
+
+            for record in corpus_result:
+
+                corpus_canonical_key = (
+                    record["canonical_key"]
+                )
+
+                corpus_tamil_word = (
+                    record["tamil_word"]
+                )
+
+                occurrences.append({
+                    "book": record["book"],
+                    "section": record["section"],
+                    "verse_number": record["verse_number"],
+                    "text": record["text"]
+                })
+
+        # =====================================================
+        # 3. COMBINED RESPONSE
+        # =====================================================
+
+        return {
+            "query": query,
+
+            "canonical_key": canonical_key,
+
+            "wordnet": {
+                "found": len(wordnet_entries) > 0,
+                "entries": list(
+                    wordnet_entries.values()
+                )
+            },
+
+            "literary_corpus": {
+                "found": len(occurrences) > 0,
+                "word": corpus_tamil_word,
+                "canonical_key": corpus_canonical_key,
+                "occurrences": occurrences
+            }
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as exc:
+
+        print(
+            "UNIFIED SEARCH ERROR:",
+            type(exc).__name__,
+            repr(str(exc))
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Unified search failed: "
+                f"{type(exc).__name__}: {str(exc)}"
+            )
+        )
